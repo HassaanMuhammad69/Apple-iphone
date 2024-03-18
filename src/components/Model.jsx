@@ -2,21 +2,24 @@ import React, { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import ModelView from './ModelView'
-import { yellowImg } from '../utils'
+import { yellowImg ,titaniumImg} from '../utils'
 
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 import { View } from '@react-three/drei'
 import { models, sizes } from '../constants'
 import { animateWithGsapTimeline } from '../utils/animation'
+import WebGLNotSupported from './WebGLNotSupported'
+
 
 const Model = () => {
-
+    const [webGLSupported, setWebGLSupported] = useState(false);
     const [size, setSize] = useState('small')
     const [model, setModel] = useState({
         title: 'iPhone 15 Pro in Natural Titanium',
         color: ['#8F8A81', '#FFE789', '#6F6C64'],
-        img: yellowImg
+        img: yellowImg,
+        placeholderImage: titaniumImg,
     })
 
     //camera control for model view
@@ -32,6 +35,14 @@ const Model = () => {
     const [largeRotation, setLargeRotation] = useState(0)
 
     const t1 = gsap.timeline()
+
+    useEffect(() => {
+        const testCanvas = document.createElement('canvas');
+        const gl =
+          testCanvas.getContext('webgl') ||
+          testCanvas.getContext('experimental-webgl');
+        setWebGLSupported(!!gl);
+      }, []);
 
     useEffect(() => {
         if (size === 'large') {
@@ -56,6 +67,28 @@ const Model = () => {
             opacity: 1
         })
     }, [])
+
+
+    if (webGLSupported) {
+        return (
+          <section className='common-padding'>
+            <div className='screen-max-width'>
+              <h1
+                id='heading'
+                className='section-heading'
+              >
+                Take a closer look.
+              </h1>
+    
+              <WebGLNotSupported
+                model={model}
+                setModel={setModel}
+                models={models}
+              />
+            </div>
+          </section>
+        );
+      }
 
     return (
         <section className='common-padding'>
@@ -141,5 +174,7 @@ const Model = () => {
         </section>
     )
 }
+
+
 
 export default Model
